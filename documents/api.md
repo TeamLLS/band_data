@@ -10,9 +10,9 @@
 
 
 ## ▶회원수 변화 조회 
-### GET /data/club/{clubId}/member?period={시간 간격}&pageNo={페이지 번호}
+### GET /data/club/{clubId}/member?fromTime={시작 날짜}
 
-- period은 선택사항이며, 포함하지 않을시 1개월 기준으로 조회 (1~12)
+- fromTime 포함 안할시 6개월 이전 부터 조회
 
 ```
 header: {  
@@ -42,9 +42,9 @@ body: {
 
 
 ## ▶활동수 변화 조회 
-### GET /data/club/{clubId}/activity?period={시간 간격}&pageNo={페이지 번호}
+### GET /data/club/{clubId}/activity?fromTime={시작 날짜}
 
-- period은 선택사항이며, 포함하지 않을시 1개월 기준으로 조회 (1~12)
+- fromTime 포함 안할시 6개월 이전 부터 조회
 
 ```
 header: {  
@@ -60,7 +60,6 @@ body: {
       clubId: Club Id, (Long)
       year: 기준 년, (Integer)
       month: 기준 월, (Integer)
-      period: 조회 기준 기간, (Integer)
       trend: 완료 활동 수, (Integer)
       actCloseCount: 완료 활동 수, (Integer)
       actCancelCount: 취소 활동 수, (Integer)
@@ -72,9 +71,9 @@ body: {
 
 
 ## ▶예산 변화 조회 
-### GET /data/club/{clubId}/budget?period={시간 간격}&pageNo={페이지 번호}
+### GET /data/club/{clubId}/budget?fromTime={시작 날짜}
 
-- period은 선택사항이며, 포함하지 않을시 1개월 기준으로 조회 (1~12)
+- fromTime 포함 안할시 6개월 이전 부터 조회
 
 ```
 header: {  
@@ -90,7 +89,6 @@ body: {
       clubId: Club Id, (Long)
       year: 기준 년, (Integer)
       month: 기준 월, (Integer)
-      period: 조회 기준 기간, (Integer)
       trend: 예산 변화, (Integer)
       income: 총 수입, (Integer)
       expense: 총 지출, (Integer)
@@ -102,9 +100,9 @@ body: {
 
 
 ## ▶참가율 변화 조회 
-### GET /data/member/{memberId}/participant?period={시간 간격}&pageNo={페이지 번호}
+### GET /data/member/{clubId}/{memberId}/participant?fromTime={시작 날짜}
 
-- period은 선택사항이며, 포함하지 않을시 1개월 기준으로 조회 (1~12)
+- fromTime 포함 안할시 6개월 이전 부터 조회
 
 ```
 header: {  
@@ -121,7 +119,6 @@ body: {
       memberid: Member Id, (Long)
       year: 기준 년, (Integer)
       month: 기준 월, (Integer)
-      period: 조회 기준 기간, (Integer)
       trend: 참가율, (Double)
       attendCount: 참가 수, (Integer)
       notAttendCount: 불참 수, (Integer)
@@ -135,9 +132,9 @@ body: {
 
 
 ## ▶납부율 변화 조회 
-### GET /data/member/{memberId}/payMember?period={시간 간격}&pageNo={페이지 번호}
+### GET /data/member/{clubId}/{memberId}/payMember?fromTime={시작 날짜}}
 
-- period은 선택사항이며, 포함하지 않을시 1개월 기준으로 조회 (1~12)
+- fromTime 포함 안할시 6개월 이전 부터 조회
 
 ```
 header: {  
@@ -154,15 +151,13 @@ body: {
       memberid: Member Id, (Long)
       year: 기준 년, (Integer)
       month: 기준 월, (Integer)
-      period: 조회 기준 기간, (Integer)
-      countTrend: 납부율(횟수), (Double)
-      amountTrend: 납부율(액수), (Double)
-      payCount: 참가 수, (Integer)
-      unPayCount: 불참 수, (Integer)
-      latePayCount: 추가 참가 수, (Integer)
-      payAmount: 추가 참가 수, (Integer)
-      unPayAmount: 추가 참가 수, (Integer)
-      latePayAmount: 추가 불참 수, (Integer)
+      trend: 납부율(횟수), (Double)
+      payCount: 납부 수, (Integer)
+      unPayCount: 미납 수, (Integer)
+      latePayCount: 추가 납부 수, (Integer)
+      payAmount: 납부액, (Integer)
+      unPayAmount: 미납액, (Integer)
+      latePayAmount: 추가 납부액, (Integer)
     },
     ...
   ]

@@ -3,13 +3,12 @@ package com.example.band_data.data.member;
 
 import com.example.band_data.data.club.ClubData;
 import com.example.band_data.data.club.ClubDataStore;
-import com.example.band_data.data.member.form.ParticipantDataItem;
-import com.example.band_data.data.member.form.PayMemberDataItem;
+import com.example.band_data.data.member.domain.MemberSubData;
+import com.example.band_data.data.member.form.*;
+import com.example.band_data.data.member.domain.MemberData;
 import com.example.band_data.event.Event;
 import com.example.band_data.event.activity.ParticipantConfirmed;
-import com.example.band_data.event.activity.ParticipantStatus;
 import com.example.band_data.event.budget.PayMemberConfirmed;
-import com.example.band_data.event.budget.PayStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,9 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 @Service
 @Transactional
@@ -31,154 +29,153 @@ public class MemberDataService {
 
 
     public void recordEvent(Event event){
+
         Integer date = calcTime(event.getTime());
         MemberData memberData;
 
         try{
             memberData = memberDataStore.findByMemberId(event.getMemberId(), date);
         }catch (NoSuchElementException e){
-            ClubData clubData = clubDataStore.findByDate(event.getClubId(), date);
-            memberData = memberDataStore.save(new MemberData(clubData, event.getMemberId(), date));
+            memberData = memberDataStore.save(new MemberData(event.getClubId(), event.getMemberId(), date));
         }
 
-        if(event instanceof ParticipantConfirmed && ((ParticipantConfirmed) event).getStatus() == ParticipantStatus.ATTEND){
-            memberData.increaseActAttend();
-        }else if(event instanceof ParticipantConfirmed && ((ParticipantConfirmed) event).getStatus() == ParticipantStatus.ADDITIONAL_ATTEND){
-            memberData.increaseActLateAttend();
-        }else if(event instanceof ParticipantConfirmed && ((ParticipantConfirmed) event).getStatus() == ParticipantStatus.ADDITIONAL_NOT_ATTEND){
-            memberData.increaseActLateNotAttend();
-        }else if(event instanceof PayMemberConfirmed && ((PayMemberConfirmed) event).getStatus() == PayStatus.PAID){
-            memberData.increasePayCount(((PayMemberConfirmed) event).getAmount());
-        }else if(event instanceof PayMemberConfirmed && ((PayMemberConfirmed) event).getStatus() == PayStatus.UNPAID){
-            memberData.increaseUnPayCount(((PayMemberConfirmed) event).getAmount());
-        }else if(event instanceof PayMemberConfirmed && ((PayMemberConfirmed) event).getStatus() == PayStatus.LATE_PAID){
-            memberData.increaseLatePayCount(((PayMemberConfirmed) event).getAmount());
+        if(event instanceof ParticipantConfirmed){
+            memberData.applyParticipantEvent((ParticipantConfirmed) event);
+            memberDataStore.findSubByMemberId(event.getMemberId()).updateAttendData((ParticipantConfirmed) event);
+        }else if(event instanceof PayMemberConfirmed){
+            memberData.applyPayMemberEvent((PayMemberConfirmed) event);
+            memberDataStore.findSubByMemberId(event.getMemberId()).updatePayData((PayMemberConfirmed) event);
         }
     }
 
-    public List<ParticipantDataItem> getParticipantTrend(Long memberId, Integer period, int pageNo){
-        if(period==null){
-            period=1;
+    public List<ParticipantDataItem> getParticipantTrend(Long clubId, Long memberId, Instant fromTime){
+
+        Instant toTime = Instant.now();
+        if(fromTime==null){
+            fromTime = toTime.atZone(ZoneOffset.UTC).minus(6, ChronoUnit.MONTHS).toInstant();
         }
 
-        Integer date = calcTime(Instant.now());
-        List<MemberData> list = memberDataStore.findListWithClubData(memberId, date, period, pageNo, 2).getContent();
+        Integer fromDate = calcTime(fromTime);
+        Integer toDate = calcTime(toTime);
+
+        List<ClubData> clubList = clubDataStore.findListByDate(clubId, fromDate, toDate);
+        List<MemberData> memberList = memberDataStore.findListByData(memberId, fromDate, toDate);
         List<ParticipantDataItem> result = new ArrayList<>();
 
-        int p = 0;
-        int attendCount = 0;
-        int notAttendCount = 0;
-        int lateAttendCount = 0;
-        int lateNotAttendCount = 0;
-        int totalActCount = 0;
 
-        int year = 0;
-        int month = 0;
-        double trend = 0;
+        int clubSize=clubList.size();
+        ClubData clubData;
 
-        for (MemberData data : list) {
-            p++;
-            totalActCount += data.getClubData().getActCloseCount();
-            attendCount += data.getActAttendCount();
-            lateAttendCount += data.getActLateAttendCount();
-            lateNotAttendCount += data.getActLateNotAttendCount();
+        int memberIdx=0;
+        int memberSize=memberList.size();
+        MemberData memberData;
 
-            year = data.getDate()/100;
-            month = data.getDate()%100;
 
-            if(p==period){
-                notAttendCount = totalActCount - (attendCount + lateAttendCount + lateNotAttendCount);
-                trend = (double) (attendCount + lateAttendCount) / totalActCount;
+        for (int i=0; i<clubSize; i++) {
 
-                result.add(new ParticipantDataItem(data.getClubData().getClubId(), memberId, year, month, period,
-                        trend, attendCount, notAttendCount, lateAttendCount, lateNotAttendCount));
+            clubData = clubList.get(i);
+            memberData = memberIdx<memberSize?memberList.get(memberIdx):null;
 
-                p=0;
-                attendCount = 0;
-                lateAttendCount = 0;
-                lateNotAttendCount = 0;
-                totalActCount = 0;
+            if (memberData!=null && clubData.getDate().equals(memberData.getDate())){
+                result.add(new ParticipantDataItem(memberData, clubData.getActCloseCount()));
+                memberIdx++;
+            }else{
+                result.add(new ParticipantDataItem(clubId, memberId, clubData.getDate(), clubData.getActCloseCount()));
             }
-        }
-
-        if(p>0){
-            notAttendCount = totalActCount - (attendCount + lateAttendCount + lateNotAttendCount);
-            trend = (double) (attendCount + lateAttendCount) / totalActCount;
-
-            result.add(new ParticipantDataItem(list.get(0).getClubData().getClubId(), memberId, year, month, p,
-                    trend, attendCount, notAttendCount, lateAttendCount, lateNotAttendCount));
         }
 
         return result;
     }
 
-    public List<PayMemberDataItem> getPayMemberTrend(Long memberId, Integer period, int pageNo){
-        if(period==null){
-            period=1;
+    public List<PayMemberDataItem> getPayMemberTrend(Long clubId, Long memberId, Instant fromTime){
+
+        Instant toTime = Instant.now();
+        if(fromTime==null){
+            fromTime = toTime.atZone(ZoneOffset.UTC).minus(6, ChronoUnit.MONTHS).toInstant();
         }
 
-        Integer date = calcTime(Instant.now());
-        List<MemberData> list = memberDataStore.findListWithClubData(memberId, date, period, pageNo, 2).getContent();
+        Integer fromDate = calcTime(fromTime);
+        Integer toDate = calcTime(toTime);
+
+        List<MemberData> list = memberDataStore.findListByData(memberId, fromDate, toDate);
         List<PayMemberDataItem> result = new ArrayList<>();
 
-        int p = 0;
-        int payCount = 0;
-        int unPayCount = 0;
-        int latePayCount = 0;
-
-        int payAmount = 0;
-        int unPayAmount = 0;
-        int latePayAmount = 0;
-
-        int year = 0;
-        int month = 0;
-        double countTrend=0;
-        double amountTrend=0;
-
         for (MemberData data : list) {
-            p++;
-            payCount += data.getPayCount();
-            unPayCount += data.getUnPayCount();
-            latePayCount += data.getLatePayCount();
-
-            payAmount += data.getPayAmount();
-            unPayAmount += data.getUnPayAmount();
-            latePayAmount += data.getLatePayAmount();
-
-
-            year = data.getDate()/100;
-            month = data.getDate()%100;
-
-            if(p==period){
-                countTrend = (double) (payCount + latePayCount) / (payCount + unPayCount + latePayCount);
-                amountTrend = (double) (payAmount + latePayAmount) / (payAmount + unPayAmount + latePayAmount);
-
-                result.add(new PayMemberDataItem(data.getClubData().getClubId(), memberId, year, month, period,
-                        countTrend, amountTrend, payCount, unPayCount, latePayCount, payAmount, unPayAmount, latePayAmount));
-
-                p=0;
-                payCount = 0;
-                unPayCount = 0;
-                latePayCount = 0;
-
-                payAmount = 0;
-                unPayAmount = 0;
-                latePayAmount = 0;
-            }
-        }
-
-        if(p>0){
-            countTrend = (double) (payCount + latePayCount) / (payCount + unPayCount + latePayCount);
-            amountTrend = (double) (payAmount + latePayAmount) / (payAmount + unPayAmount + latePayAmount);
-
-            result.add(new PayMemberDataItem(list.get(0).getClubData().getClubId(), memberId, year, month, period,
-                    countTrend, amountTrend, payCount, unPayCount, latePayCount, payAmount, unPayAmount, latePayAmount));
+            result.add(new PayMemberDataItem(data));
         }
 
         return result;
     }
 
-    public Integer calcTime(Instant time){
+    public MemberScore getMemberScore(Long clubId, Long memberId){
+        Instant toTime = Instant.now();
+        Instant fromTime = toTime.atZone(ZoneOffset.UTC).minus(12, ChronoUnit.MONTHS).toInstant();
+
+        Integer toDate = calcTime(toTime);
+        Integer fromDate = calcTime(fromTime);
+
+        MemberSubData subData = memberDataStore.findSubByMemberId(memberId);
+        MemberDataDto data = memberDataStore.findSumByMemberId(memberId, fromDate, toDate);
+
+        if(data.getMemberId()==null){
+            data = new MemberDataDto(clubId, memberId);
+        }
+        Long actTotal = clubDataStore.findActCountByDate(clubId, fromDate, toDate);
+
+        double attendRate = actTotal>0?(double)(data.getAttendCount() + data.getLateAttendCount())/actTotal:1.0;
+
+        double payRate = (data.getPayCount() + data.getLatePayCount() + data.getUnPayCount())>0?
+                (double)(data.getPayCount() + data.getLatePayCount())/(data.getPayCount() + data.getLatePayCount() + data.getUnPayCount()): 1.0;
+
+        long payAmount = data.getPayAmount() + data.getLatePayAmount();
+
+        return new MemberScore(clubId, memberId, calcPoint(subData, data, actTotal),
+                attendRate, payRate, payAmount, subData.getUnpaidTotal(), subData.getLastAttend(), subData.getLastPay());
+    }
+
+    public List<MemberScoreItem> getMemberScores(Long clubId){
+        Instant toTime = Instant.now();
+        Instant fromTime = toTime.atZone(ZoneOffset.UTC).minus(12, ChronoUnit.MONTHS).toInstant();
+
+        Integer toDate = calcTime(toTime);
+        Integer fromDate = calcTime(fromTime);
+
+        List<MemberSubData> subList = memberDataStore.findSubListByClubId(clubId);
+        List<MemberDataDto> list = memberDataStore.findSumListByClubId(clubId, fromDate, toDate);
+        Long actTotal = clubDataStore.findActCountByDate(clubId, fromDate, toDate);
+
+        Map<Long, MemberDataDto> map = new HashMap<>();
+
+        for (MemberDataDto memberDataDto : list) {
+            map.put(memberDataDto.getMemberId(), memberDataDto);
+        }
+
+        List<MemberScoreItem> result = new ArrayList<>();
+
+        System.out.println(list.size());
+
+        long point = 0;
+        MemberDataDto data;
+
+        for (MemberSubData subData : subList) {
+
+            data = map.get(subData.getMemberId());
+            if(data==null){
+                data=new MemberDataDto(clubId, subData.getMemberId());
+            }
+
+            point = calcPoint(subData, data, actTotal);
+
+            result.add(new MemberScoreItem(subData, point));
+        }
+
+        result.sort((m1, m2) -> Long.compare(m2.getPoint(), m1.getPoint()));
+
+        return result;
+    }
+
+
+    private Integer calcTime(Instant time){
         ZonedDateTime zonedDateTime = time.atZone(ZoneOffset.UTC);
         int year = zonedDateTime.getYear();
         int month = zonedDateTime.getMonthValue();
@@ -186,5 +183,54 @@ public class MemberDataService {
         return year*100 + month;
     }
 
+    private Long calcPoint(MemberSubData subData, MemberDataDto data, Long actTotal){
 
+        double attendRate = actTotal>0?(double)(data.getAttendCount() + data.getLateAttendCount())/actTotal:1.0;
+
+        double payCountRate = (data.getPayCount() + data.getLatePayCount() + data.getUnPayCount())>0?
+                (double)(data.getPayCount() + data.getLatePayCount())/(data.getPayCount() + data.getLatePayCount() + data.getUnPayCount()): 1.0;
+
+        double payAmountRate = (data.getPayAmount() + data.getLatePayAmount()+ data.getUnPayAmount())>0?
+                (double)(data.getPayAmount() + data.getLatePayAmount())/(data.getPayAmount() + data.getLatePayAmount() + data.getUnPayAmount()): 1.0;
+
+        long result = 0;
+
+        result += data.getPoint();
+
+        if(attendRate<0.3){
+            result -=1;
+        }else if(attendRate>0.9){
+            result +=2;
+        }else if(attendRate>0.6){
+            result +=1;
+        }
+
+        if(payCountRate<0.3){
+            result -=2;
+        }else if(payCountRate<0.6){
+            result -=1;
+        }else if(payCountRate>0.9){
+            result +=1;
+        }
+
+        if(payAmountRate<0.3){
+            result -=2;
+        }else if(payAmountRate<0.6){
+            result -=1;
+        }else if(payAmountRate>0.9){
+            result +=1;
+        }
+
+        int lastAttendDate = calcTime(subData.getLastAttend());
+        int lastPayDate = calcTime(subData.getLastPay());
+        int date = calcTime(Instant.now());
+
+        int monthTerm = (date/100 - lastAttendDate/100)*12;
+        result -= (date%100+monthTerm) - lastAttendDate%100;
+
+        monthTerm = (date/100 - lastPayDate/100)*12;
+        result -= (date%100+monthTerm) - lastPayDate%100;
+
+        return result;
+    }
 }

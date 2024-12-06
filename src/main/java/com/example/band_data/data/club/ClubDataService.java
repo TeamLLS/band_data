@@ -3,6 +3,8 @@ package com.example.band_data.data.club;
 import com.example.band_data.data.club.form.ActivityDataItem;
 import com.example.band_data.data.club.form.BudgetDataItem;
 import com.example.band_data.data.club.form.MemberDataItem;
+import com.example.band_data.data.member.MemberDataStore;
+import com.example.band_data.data.member.domain.MemberSubData;
 import com.example.band_data.event.Event;
 import com.example.band_data.event.activity.ActivityCanceled;
 import com.example.band_data.event.activity.ActivityClosed;
@@ -15,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -25,6 +28,7 @@ import java.util.NoSuchElementException;
 public class ClubDataService {
 
     private final ClubDataStore clubDataStore;
+    private final MemberDataStore memberDataStore;
 
     public void recordEvent(Event event){
         Integer date = calcTime(event.getTime());
@@ -37,159 +41,81 @@ public class ClubDataService {
         }
 
         if(event instanceof ActivityClosed){
-            clubData.increaseActClose();
+            clubData.applyActivityClosedEvent((ActivityClosed) event);
         }else if(event instanceof ActivityCanceled){
-            clubData.increaseActCancel();
+            clubData.applyActivityCanceledEvent((ActivityCanceled) event);
         }else if(event instanceof MemberCreated){
-            clubData.increaseMemRegister();
+            clubData.applyMemberCreatedEvent((MemberCreated) event);
+            memberDataStore.saveSub(new MemberSubData((MemberCreated) event));
         }else if(event instanceof MemberLeft){
-            clubData.increaseMemLeft();
+            clubData.applyMemberLeftEvent((MemberLeft) event);
+            memberDataStore.findSubByMemberId(event.getMemberId()).applyLeftEvent((MemberLeft) event);
         }else if(event instanceof MemberBanned){
-            clubData.increaseMemBan();
-        }else if(event instanceof BudgetUpdated && ((BudgetUpdated) event).getAmount()>0){;
-            clubData.increaseIncome(((BudgetUpdated) event).getAmount());
-        }else if(event instanceof BudgetUpdated && ((BudgetUpdated) event).getAmount()<0){
-            clubData.increaseExpense(((BudgetUpdated)event).getAmount());
+            clubData.applyMemberBannedEvent((MemberBanned) event);
+            memberDataStore.findSubByMemberId(event.getMemberId()).applyBanEvent((MemberBanned) event);
+        }else if(event instanceof BudgetUpdated) {
+            clubData.applyBudgetEvent((BudgetUpdated) event);
         }
     }
 
 
-    public List<MemberDataItem> getMemberTrend(Long clubId, Integer period, int pageNo){
-        if(period==null){
-            period=1;
+    public List<MemberDataItem> getMemberTrend(Long clubId, Instant fromTime){
+
+        Instant toTime = Instant.now();
+
+        if(fromTime==null){
+            fromTime = toTime.minus(6, ChronoUnit.MONTHS);
         }
 
-        Integer date = calcTime(Instant.now());
-        List<ClubData> list = clubDataStore.findList(clubId, date, period, pageNo, 2).getContent();
+        Integer fromDate = calcTime(fromTime);
+        Integer toDate = calcTime(toTime);
+
+        List<ClubData> list = clubDataStore.findListByDate(clubId, fromDate, toDate);
         List<MemberDataItem> result = new ArrayList<>();
 
-        int p = 0;
-        int memberRegisterCount = 0;
-        int memberLeftCount = 0;
-        int memberBanCount = 0;
-
-        int year = 0;
-        int fromMonth = 0;
-        int trend = 0;
-
         for (ClubData data : list) {
-            p++;
-            memberRegisterCount += data.getMemberRegisterCount();
-            memberLeftCount += data.getMemberLeftCount();
-            memberBanCount += data.getMemberBanCount();
-
-            year = data.getDate()/100;
-            fromMonth = data.getDate()%100;
-
-            if(p==period){
-                trend = memberRegisterCount - (memberLeftCount + memberBanCount);
-
-                result.add(new MemberDataItem(clubId, year, fromMonth, period, trend,
-                        memberRegisterCount, memberLeftCount, memberBanCount));
-
-                p=0;
-                memberRegisterCount=0;
-                memberLeftCount=0;
-                memberBanCount=0;
-            }
-        }
-
-        if(p>0){
-            trend = memberRegisterCount - (memberLeftCount + memberBanCount);
-
-            result.add(new MemberDataItem(clubId, year, fromMonth, p, trend,
-                    memberRegisterCount, memberLeftCount, memberBanCount));
+            result.add(new MemberDataItem(data));
         }
 
         return result;
     }
 
 
-    public List<ActivityDataItem> getActivityTrend(Long clubId, Integer period, int pageNo){
-        if(period==null){
-            period=1;
+    public List<ActivityDataItem> getActivityTrend(Long clubId, Instant fromTime){
+        Instant toTime = Instant.now();
+
+        if(fromTime==null){
+            fromTime = toTime.minus(6, ChronoUnit.MONTHS);
         }
 
-        Integer date = calcTime(Instant.now());
-        List<ClubData> list = clubDataStore.findList(clubId, date, period, pageNo, 2).getContent();
+        Integer fromDate = calcTime(fromTime);
+        Integer toDate = calcTime(toTime);
+
+        List<ClubData> list = clubDataStore.findListByDate(clubId, fromDate, toDate);
         List<ActivityDataItem> result = new ArrayList<>();
 
-        int p = 0;
-        int actCloseCount = 0;
-        int actCancelCount = 0;
-
-        int year = 0;
-        int month = 0;
-        int trend = 0;
-
         for (ClubData data : list) {
-            p++;
-            actCloseCount += data.getActCloseCount();
-            actCancelCount += data.getActCancelCount();
-
-            year = data.getDate()/100;
-            month = data.getDate()%100;
-
-            if(p==period){
-                trend = actCloseCount;
-
-                result.add(new ActivityDataItem(clubId, year, month, period, trend, actCloseCount, actCancelCount));
-
-                p=0;
-                actCloseCount=0;
-                actCancelCount=0;
-            }
+            result.add(new ActivityDataItem(data));
         }
-
-        if(p>0){
-            trend = actCloseCount;
-            result.add(new ActivityDataItem(clubId, year, month, p, trend, actCloseCount, actCancelCount));
-        }
-
 
         return result;
     }
 
-    public List<BudgetDataItem> getBudgetTrend(Long clubId, Integer period, int pageNo){
-        if(period==null){
-            period=1;
+    public List<BudgetDataItem> getBudgetTrend(Long clubId, Instant fromTime){
+        Instant toTime = Instant.now();
+
+        if(fromTime==null){
+            fromTime = toTime.minus(6, ChronoUnit.MONTHS);
         }
 
-        Integer date = calcTime(Instant.now());
-        List<ClubData> list = clubDataStore.findList(clubId, date, period, pageNo, 2).getContent();
+        Integer fromDate = calcTime(fromTime);
+        Integer toDate = calcTime(toTime);
+
+        List<ClubData> list = clubDataStore.findListByDate(clubId, fromDate, toDate);
         List<BudgetDataItem> result = new ArrayList<>();
 
-        int p = 0;
-        int income = 0;
-        int expense = 0;
-
-        int year = 0;
-        int month = 0;
-        int trend = 0;
-
         for (ClubData data : list) {
-            p++;
-            income += data.getIncome();
-            expense += data.getExpense();
-
-            year = data.getDate()/100;
-            month = data.getDate()%100;
-
-            if(p==period){
-                trend = income - expense;
-
-                result.add(new BudgetDataItem(clubId, year, month, period, trend, income, expense));
-
-                p=0;
-                income=0;
-                expense=0;
-            }
-        }
-
-        if(p>0){
-            trend = income - expense;
-
-            result.add(new BudgetDataItem(clubId, year, month, p, trend, income, expense));
+            result.add(new BudgetDataItem(data));
         }
 
         return result;

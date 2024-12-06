@@ -1,5 +1,11 @@
 package com.example.band_data.data.club;
 
+import com.example.band_data.event.activity.ActivityCanceled;
+import com.example.band_data.event.activity.ActivityClosed;
+import com.example.band_data.event.budget.BudgetUpdated;
+import com.example.band_data.event.club.MemberBanned;
+import com.example.band_data.event.club.MemberCreated;
+import com.example.band_data.event.club.MemberLeft;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -59,32 +65,31 @@ public class ClubData {
         this.expense = expense;
     }
 
-    public void increaseMemRegister(){
-        this.memberRegisterCount++;
-    }
-
-    public void increaseMemLeft(){
-        this.memberLeftCount++;
-    }
-
-    public void increaseMemBan(){
-        this.memberBanCount++;
-    }
-
-
-    public void increaseActClose(){
-        this.actCloseCount++;
-    }
-
-    public void increaseActCancel(){
+    public void applyActivityCanceledEvent(ActivityCanceled event){
         this.actCancelCount++;
     }
 
-    public void increaseIncome(int amount){
-        this.income += amount;
+    public void applyActivityClosedEvent(ActivityClosed event){
+        this.actCloseCount++;
     }
 
-    public void increaseExpense(int amount){
-        this.expense += amount;
+    public void applyBudgetEvent(BudgetUpdated event){
+        if(event.getAmount() > 0){
+            this.income += event.getAmount();
+        }else{
+            this.expense += event.getAmount();
+        }
+    }
+
+    public void applyMemberCreatedEvent(MemberCreated event){
+        this.memberRegisterCount++;
+    }
+
+    public void applyMemberLeftEvent(MemberLeft event){
+        this.memberLeftCount++;
+    }
+
+    public void applyMemberBannedEvent(MemberBanned event){
+        this.memberBanCount++;
     }
 }

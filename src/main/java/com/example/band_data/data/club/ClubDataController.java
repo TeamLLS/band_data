@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,9 +25,9 @@ public class ClubDataController {
     private final ClubDataService clubDataService;
 
     @GetMapping("/{clubId}/member")
-    public ResponseEntity<?> getMemberTrend(@PathVariable Long clubId, @RequestParam(required = false) Integer period, @RequestParam int pageNo){
+    public ResponseEntity<?> getMemberTrend(@PathVariable Long clubId, @RequestParam(required = false) Instant fromTime){
 
-        List<MemberDataItem> list = clubDataService.getMemberTrend(clubId, period, pageNo);
+        List<MemberDataItem> list = clubDataService.getMemberTrend(clubId, fromTime);
 
         Map<String, Object> result = new HashMap<>();
         result.put("list", list);
@@ -35,9 +36,9 @@ public class ClubDataController {
     }
 
     @GetMapping("/{clubId}/activity")
-    public ResponseEntity<?> getActivityTrend(@PathVariable Long clubId, @RequestParam(required = false) Integer period, @RequestParam int pageNo){
+    public ResponseEntity<?> getActivityTrend(@PathVariable Long clubId, @RequestParam(required = false) Instant fromTime){
 
-        List<ActivityDataItem> list = clubDataService.getActivityTrend(clubId, period ,pageNo);
+        List<ActivityDataItem> list = clubDataService.getActivityTrend(clubId, fromTime);
 
         Map<String, Object> result = new HashMap<>();
         result.put("list", list);
@@ -46,9 +47,9 @@ public class ClubDataController {
     }
 
     @GetMapping("/{clubId}/budget")
-    public ResponseEntity<?> getBudgetTrend(@PathVariable Long clubId, @RequestParam(required = false) Integer period, @RequestParam int pageNo){
+    public ResponseEntity<?> getBudgetTrend(@PathVariable Long clubId, @RequestParam(required = false) Instant fromTime){
 
-        List<BudgetDataItem> list = clubDataService.getBudgetTrend(clubId, period, pageNo);
+        List<BudgetDataItem> list = clubDataService.getBudgetTrend(clubId, fromTime);
 
         Map<String, Object> result = new HashMap<>();
         result.put("list", list);

@@ -1,9 +1,10 @@
 package com.example.band_data.data.club;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -19,8 +20,18 @@ public class ClubDataStore {
         return clubDataRepository.findByClubIdAndDate(clubId, date).orElseThrow();
     }
 
-    public Page<ClubData> findList(Long clubId, Integer date, Integer period, int pageNo, int pageSize){
-        return clubDataRepository.findListByDate(clubId, date, PageRequest.of(pageNo, period*pageSize));
+    public List<ClubData> findListByDate(Long clubId, Integer fromDate, Integer toDate){
+        return clubDataRepository.findListByDate(clubId, fromDate, toDate);
+    }
+
+    public Long findActCountByDate(Long clubId, Integer fromDate, Integer toDate){
+        Long actTotal = clubDataRepository.findActSumByDate(clubId, fromDate, toDate);
+
+        if(actTotal==null){
+            return 0L;
+        }
+
+        return actTotal;
     }
 
 

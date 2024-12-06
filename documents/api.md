@@ -7,6 +7,8 @@
 |[예산 변화 조회](#예산-변화-조회)|모임 예산 변화 조회|||
 |[참가율 변화 조회](#참가율-변화-조회)|회원 참가율 변화 조회|||
 |[납부율 변화 조회](#납부율-변화-조회)|회원 납부율 변화 조회|||
+|[회원 순위 조회](#회원-순위-조회)|최근 회원 점수 순위 조회|||
+|[회원 점수 조회](#회원-점수-조회)|최근 회원 점수 상세 조회|||
 
 
 ## ▶회원수 변화 조회 
@@ -158,8 +160,64 @@ body: {
       payAmount: 납부액, (Integer)
       unPayAmount: 미납액, (Integer)
       latePayAmount: 추가 납부액, (Integer)
+```
+
+
+## ▶회원 순위 조회 
+### GET /data/member/{clubId}/rank
+
+```
+header: {  
+  Authorization: Bearer ${accessToken value}
+}
+```
+
+### 응답
+
+- 3개월 기준 합산 점수 
+
+```
+body: {
+  list: [
+    {
+      clubId: Club Id, (Long)
+      memberid: Member Id, (Long)
+      username: useranme, (String)
+      membername: Member 이름, (String)
+      role: Member 역할, (String)
+      point: 합산 점수, (Integer)
     },
     ...
   ]
 }
 ```
+
+
+## ▶회원 점수 조회 
+### GET /data/member/{clubId}/{memberId}/score
+
+```
+header: {  
+  Authorization: Bearer ${accessToken value}
+}
+```
+
+### 응답
+
+- (합산 점수, 참가율, 납부율, 납부액: 3개월 기준) , (unPaidTotal, lastAttendTime, lastPayTime: 전체 기간 기준)
+  
+```
+body: {
+  clubId: Club Id, (Long)
+  memberid: Member Id, (Long)
+  point: 합산 점수, (Integer)
+  attendRate: 참가율, (Double)
+  payRate: 납부율 (횟수), (Double)
+  payAmount: 납부액, (Integer)
+  unPaidTotal: 총 미납액, (Integer)
+  lastAttendTime: 마지막 활동 참가 시간, (Instnat, ISO 8601)
+  lastPayTime: 마지막 회비 납부 시간 (Instnat, ISO 8601)
+}
+```
+
+

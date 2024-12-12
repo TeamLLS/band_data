@@ -164,7 +164,11 @@ body: {
 
 
 ## ▶회원 순위 조회 
-### GET /data/member/{clubId}/rank
+### GET /data/member/{clubId}/rank?option={옵션 번호}
+
+- 옵션 번호 1: 상위 회원 3명 조회
+- 옵션 번호 2: 평균 점수 * 0.3 미만 회원 조회
+- 번호 없음: 전체 회원 조회
 
 ```
 header: {  

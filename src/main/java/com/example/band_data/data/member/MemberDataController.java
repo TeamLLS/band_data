@@ -47,8 +47,8 @@ public class MemberDataController {
     }
 
     @GetMapping("/{clubId}/rank")
-    public ResponseEntity<?> getMemberRank(@PathVariable Long clubId){
-        List<MemberScoreItem> list = memberDataService.getMemberScores(clubId);
+    public ResponseEntity<?> getMemberRank(@PathVariable Long clubId, @RequestParam(required = false) Integer option){
+        List<MemberScoreItem> list = memberDataService.getMemberScores(clubId, option);
         Map<String, Object> result = new HashMap<>();
         result.put("list", list);
         return ResponseEntity.ok().body(result);

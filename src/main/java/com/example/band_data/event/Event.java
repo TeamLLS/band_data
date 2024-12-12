@@ -13,6 +13,8 @@ import java.time.Instant;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
+        @JsonSubTypes.Type(value = ClubCreated.class, name = "ClubCreated"),
+        @JsonSubTypes.Type(value = ClubClosed.class, name = "ClubClosed"),
         @JsonSubTypes.Type(value = MemberCreated.class, name = "MemberCreated"),
         @JsonSubTypes.Type(value = MemberLeft.class, name = "MemberLeft"),
         @JsonSubTypes.Type(value = MemberBanned.class, name = "MemberBanned"),

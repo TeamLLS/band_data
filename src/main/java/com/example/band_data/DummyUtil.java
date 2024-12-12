@@ -48,41 +48,41 @@ public class DummyUtil {
         clubDataRepository.save(saved9);
 
 
-        MemberData saved10 = new MemberData(10L, saved1.getClubId(), 1L, 202311, 5, 2, 0, 0, 3, 0, 0, 10000, 0, 0);
-        MemberData saved11 = new MemberData(11L, saved2.getClubId(), 1L, 202312, 3, 2, 1, 0, 2, 1, 1, 11000, 3000, 5000);
+        MemberData saved10 = new MemberData(10L, saved1.getClubId(), 1L, 202311, 50, 2, 0, 0, 3, 0, 0, 10000, 0, 0);
+        MemberData saved11 = new MemberData(11L, saved2.getClubId(), 1L, 202312, 30, 2, 1, 0, 2, 1, 1, 11000, 3000, 5000);
         MemberData saved12 = new MemberData(12L, saved3.getClubId(), 1L, 202403, 0, 0, 0, 1, 1, 0, 0, 5000, 0, 0);
-        MemberData saved13 = new MemberData(13L, saved4.getClubId(), 1L, 202405, 2, 1, 0, 0, 1, 0, 0, 4000, 0, 0);
-        MemberData saved14 = new MemberData(14L, saved5.getClubId(), 1L, 202406, -1, 1, 0, 1, 0, 1, 0, 0, 2000, 0);
-        MemberData saved15 = new MemberData(15L, saved6.getClubId(), 1L, 202407, 2, 1, 1, 0, 1, 0, 1, 3000, 0, 4000);
+        MemberData saved13 = new MemberData(13L, saved4.getClubId(), 1L, 202405, 20, 1, 0, 0, 1, 0, 0, 4000, 0, 0);
+        MemberData saved14 = new MemberData(14L, saved5.getClubId(), 1L, 202406, -10, 1, 0, 1, 0, 1, 0, 0, 2000, 0);
+        MemberData saved15 = new MemberData(15L, saved6.getClubId(), 1L, 202407, 20, 1, 1, 0, 1, 0, 1, 3000, 0, 4000);
         MemberData saved16 = new MemberData(16L, saved7.getClubId(), 1L, 202409, 0, 0, 0, 0, 1, 1, 0, 5000, 6000, 0);
-        MemberData saved17 = new MemberData(17L, saved8.getClubId(), 1L, 202410, 1, 2, 0, 1, 1, 1, 1, 4000, 3000, 5000);
-        MemberData saved18 = new MemberData(18L, saved9.getClubId(), 1L, 202411, -1, 0, 1, 0, 0, 1, 0, 0, 7000, 0);
+        MemberData saved17 = new MemberData(17L, saved8.getClubId(), 1L, 202410, 10, 2, 0, 1, 1, 1, 1, 4000, 3000, 5000);
+        MemberData saved18 = new MemberData(18L, saved9.getClubId(), 1L, 202411, -10, 0, 1, 0, 0, 1, 0, 0, 7000, 0);
 
-        MemberData saved19 = new MemberData(19L, saved1.getClubId(), 2L, 202311, 6, 3, 0, 0, 3, 0, 0, 15000, 0, 0);
-        MemberData saved20 = new MemberData(20L, saved2.getClubId(), 2L, 202312, 6, 3, 0, 0, 3, 0, 0, 18000, 0, 5000);
+        MemberData saved19 = new MemberData(19L, saved1.getClubId(), 2L, 202311, 60, 3, 0, 0, 3, 0, 0, 15000, 0, 0);
+        MemberData saved20 = new MemberData(20L, saved2.getClubId(), 2L, 202312, 60, 3, 0, 0, 3, 0, 0, 18000, 0, 5000);
         MemberData saved21 = new MemberData(21L, saved3.getClubId(), 2L, 202403, 0, 0, 0, 1, 1, 0, 0, 5000, 0, 0);
-        MemberData saved22 = new MemberData(22L, saved4.getClubId(), 2L, 202405, 2, 1, 0, 0, 1, 0, 0, 4000, 0, 0);
-        MemberData saved23 = new MemberData(23L, saved5.getClubId(), 2L, 202406, 3, 1, 1, 0, 2, 0, 0, 10000, 0, 0);
-        MemberData saved24 = new MemberData(24L, saved6.getClubId(), 2L, 202407, 4, 2, 0, 0, 2, 0, 1, 9000, 0, 4000);
-        MemberData saved25 = new MemberData(25L, saved7.getClubId(), 2L, 202409, -2, 0, 0, 1, 0, 1, 0, 0, 6000, 0);
-        MemberData saved26 = new MemberData(26L, saved8.getClubId(), 2L, 202410, 4, 2, 1, 0, 3, 1, 0, 15000, 4000, 0);
-        MemberData saved27 = new MemberData(27L, saved9.getClubId(), 2L, 202411, 1, 0, 1, 0, 1, 0, 0, 7000, 0, 0);
+        MemberData saved22 = new MemberData(22L, saved4.getClubId(), 2L, 202405, 20, 1, 0, 0, 1, 0, 0, 4000, 0, 0);
+        MemberData saved23 = new MemberData(23L, saved5.getClubId(), 2L, 202406, 30, 1, 1, 0, 2, 0, 0, 10000, 0, 0);
+        MemberData saved24 = new MemberData(24L, saved6.getClubId(), 2L, 202407, 40, 2, 0, 0, 2, 0, 1, 9000, 0, 4000);
+        MemberData saved25 = new MemberData(25L, saved7.getClubId(), 2L, 202409, -20, 0, 0, 1, 0, 1, 0, 0, 6000, 0);
+        MemberData saved26 = new MemberData(26L, saved8.getClubId(), 2L, 202410, 40, 2, 1, 0, 3, 1, 0, 15000, 4000, 0);
+        MemberData saved27 = new MemberData(27L, saved9.getClubId(), 2L, 202411, 10, 0, 1, 0, 1, 0, 0, 7000, 0, 0);
 
-        MemberData saved28 = new MemberData(28L, saved5.getClubId(), 3L, 202406, 4, 2, 0, 0, 2, 0, 1, 8000, 0, 4000);
-        MemberData saved29 = new MemberData(29L, saved6.getClubId(), 3L, 202407, 4, 2, 0, 0, 2, 0, 0, 10000, 0, 0);
-        MemberData saved30 = new MemberData(30L, saved7.getClubId(), 3L, 202409, 2, 1, 0, 0, 1, 0, 0, 6000, 0, 0);
-        MemberData saved31 = new MemberData(31L, saved8.getClubId(), 3L, 202410, 5, 2, 0, 0, 3, 0, 0, 11000, 0, 0);
+        MemberData saved28 = new MemberData(28L, saved5.getClubId(), 3L, 202406, 40, 2, 0, 0, 2, 0, 1, 8000, 0, 4000);
+        MemberData saved29 = new MemberData(29L, saved6.getClubId(), 3L, 202407, 40, 2, 0, 0, 2, 0, 0, 10000, 0, 0);
+        MemberData saved30 = new MemberData(30L, saved7.getClubId(), 3L, 202409, 20, 1, 0, 0, 1, 0, 0, 6000, 0, 0);
+        MemberData saved31 = new MemberData(31L, saved8.getClubId(), 3L, 202410, 50, 2, 0, 0, 3, 0, 0, 11000, 0, 0);
         MemberData saved32 = new MemberData(32L, saved9.getClubId(), 3L, 202411, 0, 1, 0, 0, 0, 1, 0, 0, 7000, 0);
 
-        MemberData saved33 = new MemberData(33L, saved5.getClubId(), 4L, 202406, 1, 1, 1, 0, 1, 1, 0, 5000, 5000, 0);
-        MemberData saved34 = new MemberData(34L, saved6.getClubId(), 4L, 202407, 5, 2, 0, 0, 3, 0, 0, 14000, 0, 0);
-        MemberData saved35 = new MemberData(35L, saved7.getClubId(), 4L, 202409, 1, 1, 0, 0, 0, 0, 1, 0, 0, 6000);
-        MemberData saved36 = new MemberData(36L, saved8.getClubId(), 4L, 202410, 2, 2, 0, 1, 2, 1, 0, 11000, 4000, 0);
-        MemberData saved37 = new MemberData(37L, saved9.getClubId(), 4L, 202411, 2, 1, 1, 0, 1, 0, 1, 4000, 0, 7000);
+        MemberData saved33 = new MemberData(33L, saved5.getClubId(), 4L, 202406, 10, 1, 1, 0, 1, 1, 0, 5000, 5000, 0);
+        MemberData saved34 = new MemberData(34L, saved6.getClubId(), 4L, 202407, 50, 2, 0, 0, 3, 0, 0, 14000, 0, 0);
+        MemberData saved35 = new MemberData(35L, saved7.getClubId(), 4L, 202409, 10, 1, 0, 0, 0, 0, 1, 0, 0, 6000);
+        MemberData saved36 = new MemberData(36L, saved8.getClubId(), 4L, 202410, 20, 2, 0, 1, 2, 1, 0, 11000, 4000, 0);
+        MemberData saved37 = new MemberData(37L, saved9.getClubId(), 4L, 202411, 20, 1, 1, 0, 1, 0, 1, 4000, 0, 7000);
 
-        MemberData saved38 = new MemberData(49L, saved6.getClubId(), 5L, 202407, 2, 2, 0, 0, 1, 1, 1, 5000, 4000, 4000);
-        MemberData saved39 = new MemberData(50L, saved7.getClubId(), 5L, 202410, -1, 0, 1, 0, 0, 1, 0, 0, 6000, 0);
-        MemberData saved40 = new MemberData(52L, saved9.getClubId(), 5L, 202411, 2, 1, 0, 0, 1, 0, 0, 7000, 0, 0);
+        MemberData saved38 = new MemberData(49L, saved6.getClubId(), 5L, 202407, 20, 2, 0, 0, 1, 1, 1, 5000, 4000, 4000);
+        MemberData saved39 = new MemberData(50L, saved7.getClubId(), 5L, 202410, -10, 0, 1, 0, 0, 1, 0, 0, 6000, 0);
+        MemberData saved40 = new MemberData(52L, saved9.getClubId(), 5L, 202411, 20, 1, 0, 0, 1, 0, 0, 7000, 0, 0);
 
         memberDataRepository.save(saved10);
         memberDataRepository.save(saved11);

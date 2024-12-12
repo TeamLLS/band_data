@@ -62,9 +62,8 @@ public class ClubDataService {
     public List<MemberDataItem> getMemberTrend(Long clubId, Instant fromTime){
 
         Instant toTime = Instant.now();
-
         if(fromTime==null){
-            fromTime = toTime.minus(6, ChronoUnit.MONTHS);
+            fromTime = toTime.atZone(ZoneOffset.UTC).minus(6, ChronoUnit.MONTHS).toInstant();
         }
 
         Integer fromDate = calcTime(fromTime);
@@ -83,9 +82,8 @@ public class ClubDataService {
 
     public List<ActivityDataItem> getActivityTrend(Long clubId, Instant fromTime){
         Instant toTime = Instant.now();
-
         if(fromTime==null){
-            fromTime = toTime.minus(6, ChronoUnit.MONTHS);
+            fromTime = toTime.atZone(ZoneOffset.UTC).minus(6, ChronoUnit.MONTHS).toInstant();
         }
 
         Integer fromDate = calcTime(fromTime);
@@ -103,9 +101,8 @@ public class ClubDataService {
 
     public List<BudgetDataItem> getBudgetTrend(Long clubId, Instant fromTime){
         Instant toTime = Instant.now();
-
         if(fromTime==null){
-            fromTime = toTime.minus(6, ChronoUnit.MONTHS);
+            fromTime = toTime.atZone(ZoneOffset.UTC).minus(6, ChronoUnit.MONTHS).toInstant();
         }
 
         Integer fromDate = calcTime(fromTime);

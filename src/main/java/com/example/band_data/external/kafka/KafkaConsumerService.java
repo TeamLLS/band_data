@@ -20,13 +20,23 @@ import org.springframework.stereotype.Component;
 
 
 @Slf4j
-@Component
+//@Component
 @RequiredArgsConstructor
 @KafkaListener(topics = "data-topic", groupId = "data-consumer-group")
 public class KafkaConsumerService {
 
     private final ClubDataService clubDataService;
     private final MemberDataService memberDataService;
+
+    @KafkaHandler
+    public void consumeEvent(ClubCreated event) {
+        System.out.println("ClubCreated - 추후 처리");
+    }
+
+    @KafkaHandler
+    public void consumeEvent(ClubClosed event){
+        System.out.println("ClubClosed - 추후 처리");
+    }
 
     @KafkaHandler
     public void consumeEvent(MemberCreated event){

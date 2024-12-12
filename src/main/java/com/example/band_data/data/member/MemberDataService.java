@@ -18,6 +18,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -30,7 +31,14 @@ public class MemberDataService {
 
     public void recordEvent(Event event){
 
-        Integer date = calcTime(event.getTime());
+        Integer date = null;
+
+        if(event instanceof PayMemberConfirmed){
+            date = calcTime(((PayMemberConfirmed) event).getPaidAt());
+        }else if(event instanceof ParticipantConfirmed){
+            date = calcTime(((ParticipantConfirmed) event).getChangedAt());
+        }
+
         MemberData memberData;
 
         try{
@@ -109,7 +117,7 @@ public class MemberDataService {
 
     public MemberScore getMemberScore(Long clubId, Long memberId){
         Instant toTime = Instant.now();
-        Instant fromTime = toTime.atZone(ZoneOffset.UTC).minus(12, ChronoUnit.MONTHS).toInstant();
+        Instant fromTime = toTime.atZone(ZoneOffset.UTC).minus(3, ChronoUnit.MONTHS).toInstant();
 
         Integer toDate = calcTime(toTime);
         Integer fromDate = calcTime(fromTime);
@@ -133,9 +141,9 @@ public class MemberDataService {
                 attendRate, payRate, payAmount, subData.getUnpaidTotal(), subData.getLastAttend(), subData.getLastPay());
     }
 
-    public List<MemberScoreItem> getMemberScores(Long clubId){
+    public List<MemberScoreItem> getMemberScores(Long clubId, Integer option){
         Instant toTime = Instant.now();
-        Instant fromTime = toTime.atZone(ZoneOffset.UTC).minus(12, ChronoUnit.MONTHS).toInstant();
+        Instant fromTime = toTime.atZone(ZoneOffset.UTC).minus(3, ChronoUnit.MONTHS).toInstant();
 
         Integer toDate = calcTime(toTime);
         Integer fromDate = calcTime(fromTime);
@@ -152,9 +160,8 @@ public class MemberDataService {
 
         List<MemberScoreItem> result = new ArrayList<>();
 
-        System.out.println(list.size());
-
         long point = 0;
+        long totalPoint = 0;
         MemberDataDto data;
 
         for (MemberSubData subData : subList) {
@@ -165,11 +172,29 @@ public class MemberDataService {
             }
 
             point = calcPoint(subData, data, actTotal);
+            totalPoint +=point;
 
             result.add(new MemberScoreItem(subData, point));
         }
 
         result.sort((m1, m2) -> Long.compare(m2.getPoint(), m1.getPoint()));
+
+        if(option==null){
+            option=0;
+        }
+
+        if(option==1){
+            result.sort((m1, m2) -> Long.compare(m2.getPoint(), m1.getPoint()));
+            result = result.subList(0, 3);
+        }else if(option==2){
+            int avg = (int)totalPoint/result.size();
+
+            System.out.println(avg);
+            System.out.println((int)(avg*0.3));
+
+            result = result.stream().filter(m -> m.getPoint() < (int)(avg*0.3)).collect(Collectors.toList());
+            result.sort((m1, m2) -> Long.compare(m2.getPoint(), m1.getPoint()));
+        }
 
         return result;
     }
@@ -198,27 +223,27 @@ public class MemberDataService {
         result += data.getPoint();
 
         if(attendRate<0.3){
-            result -=1;
+            result -=10;
         }else if(attendRate>0.9){
-            result +=2;
+            result +=20;
         }else if(attendRate>0.6){
-            result +=1;
+            result +=10;
         }
 
         if(payCountRate<0.3){
-            result -=2;
+            result -=20;
         }else if(payCountRate<0.6){
-            result -=1;
+            result -=10;
         }else if(payCountRate>0.9){
-            result +=1;
+            result +=10;
         }
 
         if(payAmountRate<0.3){
-            result -=2;
+            result -=20;
         }else if(payAmountRate<0.6){
-            result -=1;
+            result -=10;
         }else if(payAmountRate>0.9){
-            result +=1;
+            result +=10;
         }
 
         int lastAttendDate = calcTime(subData.getLastAttend());
@@ -226,10 +251,10 @@ public class MemberDataService {
         int date = calcTime(Instant.now());
 
         int monthTerm = (date/100 - lastAttendDate/100)*12;
-        result -= (date%100+monthTerm) - lastAttendDate%100;
+        result -= ((date%100+monthTerm) - lastAttendDate%100)* 10L;
 
         monthTerm = (date/100 - lastPayDate/100)*12;
-        result -= (date%100+monthTerm) - lastPayDate%100;
+        result -= ((date%100+monthTerm) - lastPayDate%100)* 10L;
 
         return result;
     }

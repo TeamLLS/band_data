@@ -95,7 +95,7 @@ public class MemberData {
     public void applyParticipantEvent(ParticipantConfirmed event){
         if(event.getStatus() == ParticipantStatus.ATTEND){
             this.actAttendCount++;
-            this.point += 1;
+            this.point += 10;
         }else if(event.getStatus() == ParticipantStatus.ADDITIONAL_ATTEND){
             this.actLateAttendCount++;
         }else if(event.getStatus() == ParticipantStatus.ADDITIONAL_NOT_ATTEND){
@@ -108,16 +108,16 @@ public class MemberData {
         if(event.getStatus() == PayStatus.PAID){
             this.payCount++;
             this.payAmount += event.getAmount();
-            this.point += 1;
+            this.point += 10;
         }else if(event.getStatus() == PayStatus.UNPAID){
             this.unPayCount++;
             this.unPayAmount += event.getAmount();
-            this.point -= 1;
+            this.point -= 10;
         }else if(event.getStatus() == PayStatus.LATE_PAID){
             this.latePayCount++;
             this.unPayCount--;
             this.latePayAmount += event.getAmount();
-            this.point += 1;
+            this.point += 10;
         }
     }
 

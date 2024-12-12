@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 
 
 @Slf4j
-//@Component
+@Component
 @RequiredArgsConstructor
 @KafkaListener(topics = "data-topic", groupId = "data-consumer-group")
 public class KafkaConsumerService {

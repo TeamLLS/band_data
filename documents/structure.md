@@ -40,8 +40,9 @@ band_data
 |--------|------|------|------|------|
 |MemberData|      |      |      |      |
 |        |id|Long|Member Data Id|Primary Key|
-|        |clubData|ClubData|연관 Club 데이터|Foreginer Key, NotNull|
+|        |clubId|Long|연관 Club Id|Club 추적키, NotNull|
 |        |memberId|Long|Member Id|Member 추적키, NotNull|
+|        |Point|Integer|합산 점수||
 |        |date|Integer|기준년월| NotNull|
 |        |actAttendCount|Integer|활동 참가 카운터||
 |        |actLateAttendCount|Integer|활동 추가 참가 카운터||
@@ -52,6 +53,22 @@ band_data
 |        |payAmount|Integer|총 납부액||
 |        |unPayAmount|Integer|총 미납앱||
 |        |latePayAmount|Integer|총 추가납부액||
+
+## 2-3. MemberSubData
+
+| 도메인 | 속성 | 타입 | 설명 | 비고 |  
+|--------|------|------|------|------|
+|MemberSubData|      |      |      |      |
+|        |id|Long|Member SubData Id|Primary Key|
+|        |clubId|Long|연관 Club id|Club 추적키, NotNull|
+|        |memberId|Long|Member Id|Member 추적키, NotNull|
+|        |username|String|username|User 추적키, NotNull|
+|        |memberName|String|Member 이름||
+|        |role|Role|Member 역할||
+|        |lastAttend|Instant|마지막 활동 참가 시간||
+|        |lastPay|Instant|마지막 회비 납부 시간||
+|        |unPaidTotal|Integer|총 미납액||
+|        |active|Boolean|활성 회원 여부||
 
 
 # 3. 주요 컴포넌트
@@ -68,4 +85,6 @@ band_data
 
 
 # 4. ERD
-![xx](https://github.com/user-attachments/assets/3613db86-3d2c-4a66-8410-aa48437b70f0)
+
+![data](https://github.com/user-attachments/assets/71663c64-8fa4-4a92-b697-6d47daa4e336)
+
